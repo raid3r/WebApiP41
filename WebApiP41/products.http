@@ -1,0 +1,39 @@
+@server=https://localhost
+@port=7277
+
+
+GET {{server}}:{{port}}/api/products
+Accept: application/json
+
+###
+
+GET {{server}}:{{port}}/api/products/4
+Accept: application/json
+
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "New Product",
+  "price": 19.99,
+  "description": "This is a new product."
+}
+
+###
+PUT {{server}}:{{port}}/api/products/4
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": 1,
+  "name": "Updated Product",
+  "price": 29.99,
+  "description": "This is an updated product."
+}
+
+###
+DELETE {{server}}:{{port}}/api/products/4
+Accept: application/json
