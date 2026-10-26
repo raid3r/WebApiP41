@@ -19,17 +19,29 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-var products = new List<Product>
+var dataFile = "products.json";
+
+async Task<List<Product>> LoadProductsAsync()
 {
-    new Product { Id = 1, Name = "Product 1", Price = 10.99m, Description = "Description for Product 1" },
-    new Product { Id = 2, Name = "Product 2", Price = 19.99m, Description = "Description for Product 2" },
-    new Product { Id = 3, Name = "Product 3", Price = 5.99m, Description = "Description for Product 3" }
-};
+    if (!File.Exists(dataFile))
+    {
+        return new List<Product>();
+    }
+    var json = await File.ReadAllTextAsync(dataFile);
+    return System.Text.Json.JsonSerializer.Deserialize<List<Product>>(json) ?? new List<Product>();
+}
+
+async Task SaveProductsAsync(List<Product> products)
+{
+    var json = System.Text.Json.JsonSerializer.Serialize(products);
+    await File.WriteAllTextAsync(dataFile, json);
+}
 
 
 // Отримати всі продукти GET /api/products
-app.MapGet("/api/products", () =>
+app.MapGet("/api/products", async () =>
 {
+    var products = await LoadProductsAsync();
     return Results.Ok(products);
 });
 
@@ -37,8 +49,9 @@ app.MapGet("/api/products", () =>
 // /api/products/1
 // /api/products/2
 // /api/products/3
-app.MapGet("/api/products/{id:int}", (int id) =>
+app.MapGet("/api/products/{id:int}", async (int id) =>
 {
+    var products = await LoadProductsAsync();
     var product = products.FirstOrDefault(p => p.Id == id);
     if (product == null)
     {
@@ -48,23 +61,19 @@ app.MapGet("/api/products/{id:int}", (int id) =>
 });
 
 // Додати продукт POST /api/products
-/*
-   {
-    "name": "New Product",
-    "price": 15.99,
-    "description": "Description for New Product"
-   }
- */
-app.MapPost("/api/products", ([FromBody] Product newProduct) =>
+app.MapPost("/api/products", async ([FromBody] Product newProduct) =>
 {
+    var products = await LoadProductsAsync();
     newProduct.Id = products.Count > 0 ? products.Max(p => p.Id) + 1 : 1; // Генеруємо новий Id
     products.Add(newProduct);
+    await SaveProductsAsync(products);
     return Results.Ok(newProduct);
 });
 
 // Оновити продукт PUT /api/products/{id}
-app.MapPut("/api/products/{id:int}", (int id, [FromBody] Product updatedProduct) =>
+app.MapPut("/api/products/{id:int}", async (int id, [FromBody] Product updatedProduct) =>
 {
+    var products = await LoadProductsAsync();
     var product = products.FirstOrDefault(p => p.Id == id);
     if (product == null)
     {
@@ -73,18 +82,21 @@ app.MapPut("/api/products/{id:int}", (int id, [FromBody] Product updatedProduct)
     product.Name = updatedProduct.Name;
     product.Price = updatedProduct.Price;
     product.Description = updatedProduct.Description;
+    await SaveProductsAsync(products);
     return Results.Ok(product);
 });
 
 // Видалити продукт DELETE /api/products/{id}
-app.MapDelete("/api/products/{id:int}", (int id) =>
+app.MapDelete("/api/products/{id:int}", async (int id) =>
 {
+    var products = await LoadProductsAsync();
     var product = products.FirstOrDefault(p => p.Id == id);
     if (product == null)
     {
         return Results.NotFound(); // 404 Not Found
     }
     products.Remove(product);
+    await SaveProductsAsync(products);
     return Results.Ok();
 });
 
