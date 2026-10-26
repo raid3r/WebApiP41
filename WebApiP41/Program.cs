@@ -1,7 +1,11 @@
 using WebApiP41.Models;
 using Microsoft.AspNetCore.Mvc;
+using WebApiP41.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var dataFile = "products.json";
+builder.Services.AddSingleton(new ProductService(dataFile));
 
 // сервер сам себе документує /openapi/v1.json
 builder.Services.AddOpenApi();
@@ -19,29 +23,15 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-var dataFile = "products.json";
 
-async Task<List<Product>> LoadProductsAsync()
-{
-    if (!File.Exists(dataFile))
-    {
-        return new List<Product>();
-    }
-    var json = await File.ReadAllTextAsync(dataFile);
-    return System.Text.Json.JsonSerializer.Deserialize<List<Product>>(json) ?? new List<Product>();
-}
 
-async Task SaveProductsAsync(List<Product> products)
-{
-    var json = System.Text.Json.JsonSerializer.Serialize(products);
-    await File.WriteAllTextAsync(dataFile, json);
-}
+
 
 
 // Отримати всі продукти GET /api/products
-app.MapGet("/api/products", async () =>
+app.MapGet("/api/products", async (ProductService productService) =>
 {
-    var products = await LoadProductsAsync();
+    var products = await productService.GetAllProductsAsync();
     return Results.Ok(products);
 });
 
@@ -49,57 +39,44 @@ app.MapGet("/api/products", async () =>
 // /api/products/1
 // /api/products/2
 // /api/products/3
-app.MapGet("/api/products/{id:int}", async (int id) =>
+app.MapGet("/api/products/{id:int}", async (int id, ProductService productService) =>
 {
-    var products = await LoadProductsAsync();
-    var product = products.FirstOrDefault(p => p.Id == id);
+    var product = await productService.GetProductByIdAsync(id);
     if (product == null)
     {
         return Results.NotFound(); // 404 Not Found
     }
-    return Results.Ok(product);
+    return Results.Ok(product); // 200 OK
 });
 
 // Додати продукт POST /api/products
-app.MapPost("/api/products", async ([FromBody] Product newProduct) =>
+app.MapPost("/api/products", async ([FromBody] Product newProduct, ProductService productService) =>
 {
-    var products = await LoadProductsAsync();
-    newProduct.Id = products.Count > 0 ? products.Max(p => p.Id) + 1 : 1; // Генеруємо новий Id
-    products.Add(newProduct);
-    await SaveProductsAsync(products);
-    return Results.Ok(newProduct);
-});
-
-// Оновити продукт PUT /api/products/{id}
-app.MapPut("/api/products/{id:int}", async (int id, [FromBody] Product updatedProduct) =>
-{
-    var products = await LoadProductsAsync();
-    var product = products.FirstOrDefault(p => p.Id == id);
-    if (product == null)
-    {
-        return Results.NotFound(); // 404 Not Found
-    }
-    product.Name = updatedProduct.Name;
-    product.Price = updatedProduct.Price;
-    product.Description = updatedProduct.Description;
-    await SaveProductsAsync(products);
+    var product = await productService.AddProductAsync(newProduct);
     return Results.Ok(product);
 });
 
-// Видалити продукт DELETE /api/products/{id}
-app.MapDelete("/api/products/{id:int}", async (int id) =>
+// Оновити продукт PUT /api/products/{id}
+app.MapPut("/api/products/{id:int}", async (int id, [FromBody] Product updatedProduct, ProductService productService) =>
 {
-    var products = await LoadProductsAsync();
-    var product = products.FirstOrDefault(p => p.Id == id);
+    var product = await productService.UpdateProductAsync(id, updatedProduct);
     if (product == null)
     {
         return Results.NotFound(); // 404 Not Found
     }
-    products.Remove(product);
-    await SaveProductsAsync(products);
-    return Results.Ok();
+     return Results.Ok(product);
 });
 
+// Видалити продукт DELETE /api/products/{id}
+app.MapDelete("/api/products/{id:int}", async (int id, ProductService productService) =>
+{
+    var result = await productService.DeleteProductAsync(id);
+    if (!result)
+    {
+        return Results.NotFound(); // 404 Not Found
+    }
+    return Results.Ok();
+});
 
 app.Run();
 

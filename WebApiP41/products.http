@@ -7,7 +7,7 @@ Accept: application/json
 
 ###
 
-GET {{server}}:{{port}}/api/products/4
+GET {{server}}:{{port}}/api/products/2
 Accept: application/json
 
 
@@ -35,5 +35,5 @@ Accept: application/json
 }
 
 ###
-DELETE {{server}}:{{port}}/api/products/4
+DELETE {{server}}:{{port}}/api/products/2
 Accept: application/json
