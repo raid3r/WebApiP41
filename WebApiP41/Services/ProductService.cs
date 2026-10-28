@@ -4,8 +4,10 @@ namespace WebApiP41.Services;
 
 public class ProductService
 {
+    // Зберігаємо посилання на IDataProvider<Product> для доступу до даних продуктів
     private readonly IDataProvider<Product> dataProvider;
 
+    // Отримуємо IDataProvider<Product> через DI (Dependency Injection)
     public ProductService(IDataProvider<Product> dataProvider)
     {
         this.dataProvider = dataProvider;
@@ -13,6 +15,7 @@ public class ProductService
         
     public async Task<List<Product>> GetAllProductsAsync()
     {
+        // використовуємо dataProvider для отримання всіх продуктів
         var products = await dataProvider.GetAllAsync();
         return products.ToList();
     }
@@ -28,6 +31,8 @@ public class ProductService
         var products = await dataProvider.GetAllAsync();
         newProduct.Id = products.Count > 0 ? products.Max(p => p.Id) + 1 : 1;
         products.Add(newProduct);
+
+        // використовуємо dataProvider для збереження змін у колекції продуктів
         await dataProvider.SaveChanges(products);
         return newProduct;
     }
