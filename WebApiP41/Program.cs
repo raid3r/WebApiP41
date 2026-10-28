@@ -4,8 +4,29 @@ using WebApiP41.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var dataFile = "products.json";
-builder.Services.AddSingleton(new ProductService(dataFile));
+
+
+builder.Services.AddSingleton<IDataProvider<Product>>(c => {
+    // Простий спосіб отримати значення з конфігурації, якщо ключ відомий (і значення строкове)
+    //var dataFile = builder.Configuration["ProductService:DataFilePath"];
+
+    // Більш безпечний спосіб отримати значення з конфігурації, якщо ключ відомий (і значення строкове)
+    var dataFile = builder
+    .Configuration
+    .GetRequiredSection("ProductService")
+    .GetValue<string>("DataFilePath");
+
+    // Приклад, якщо в appsettings.json є секція ProductService з параметром Active,
+    // який визначає, чи активний сервіс продуктів
+    var active = builder
+    .Configuration
+    .GetRequiredSection("ProductService")
+    .GetValue<bool>("Active");
+
+    return new ProductProvider(dataFile);
+});
+
+builder.Services.AddSingleton<ProductService>();
 
 // сервер сам себе документує /openapi/v1.json
 builder.Services.AddOpenApi();
@@ -50,14 +71,14 @@ app.MapGet("/api/products/{id:int}", async (int id, ProductService productServic
 });
 
 // Додати продукт POST /api/products
-app.MapPost("/api/products", async ([FromBody] Product newProduct, ProductService productService) =>
+app.MapPost("/api/products", async ([FromBody] Product newProduct, [FromServices] ProductService productService) =>
 {
     var product = await productService.AddProductAsync(newProduct);
     return Results.Ok(product);
 });
 
 // Оновити продукт PUT /api/products/{id}
-app.MapPut("/api/products/{id:int}", async (int id, [FromBody] Product updatedProduct, ProductService productService) =>
+app.MapPut("/api/products/{id:int}", async (int id, [FromBody] Product updatedProduct, [FromServices] ProductService productService) =>
 {
     var product = await productService.UpdateProductAsync(id, updatedProduct);
     if (product == null)
@@ -68,7 +89,7 @@ app.MapPut("/api/products/{id:int}", async (int id, [FromBody] Product updatedPr
 });
 
 // Видалити продукт DELETE /api/products/{id}
-app.MapDelete("/api/products/{id:int}", async (int id, ProductService productService) =>
+app.MapDelete("/api/products/{id:int}", async (int id, [FromServices] ProductService productService) =>
 {
     var result = await productService.DeleteProductAsync(id);
     if (!result)
@@ -112,5 +133,25 @@ Blazor
 
 
   
+
+
+Створити проєкт веб-апі
+
+Для повідомлень
+
+повдомлення
+- ід
+- від кого (адреса)
+- текст повідомлення
+- дата час
+
+
+реалізувати методи отримання усіх повідомлень, 
+отримання одного повідомлення по ід, 
+повідомленнь від одного відправника (параметр адреса)
+видалення повідомленя по ід
+
+стоврити http файл з тестами методів щоб продемонтрувати як вони працюють
+
   
  */ 
