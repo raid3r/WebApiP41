@@ -30,7 +30,7 @@ builder.Services.AddSingleton<IDataProvider<Product>>(c => {
 
 builder.Services.AddSingleton<ProductService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddSingleton<RequestLoggerService>();
+builder.Services.AddScoped<RequestLoggerService>();
 
 // сервер сам себе документує /openapi/v1.json
 builder.Services.AddOpenApi();

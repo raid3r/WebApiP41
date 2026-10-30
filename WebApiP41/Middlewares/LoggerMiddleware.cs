@@ -3,16 +3,14 @@ namespace WebApiP41.Middlewares;
 
 public class LoggerMiddleware
 {
-    private readonly RequestDelegate _next;
-    private readonly RequestLoggerService _requestLoggerService;
-    public LoggerMiddleware(RequestDelegate next, RequestLoggerService requestLoggerService)
+    private readonly RequestDelegate _next;   
+    public LoggerMiddleware(RequestDelegate next)
     {
         _next = next;
-        _requestLoggerService = requestLoggerService;
     }
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, RequestLoggerService requestLoggerService)
     {
-        await _requestLoggerService.LogRequestAsync();
+        await requestLoggerService.LogRequestAsync();
         await _next(context);
     }
 }
