@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
+
 builder.Services.AddSingleton<IDataProvider<Product>>(c => {
     // Простий спосіб отримати значення з конфігурації, якщо ключ відомий (і значення строкове)
     //var dataFile = builder.Configuration["ProductService:DataFilePath"];
@@ -27,6 +28,8 @@ builder.Services.AddSingleton<IDataProvider<Product>>(c => {
 });
 
 builder.Services.AddSingleton<ProductService>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<RequestLoggerService>();
 
 // сервер сам себе документує /openapi/v1.json
 builder.Services.AddOpenApi();
@@ -45,22 +48,58 @@ if (app.Environment.IsDevelopment())
 }
 
 
+/*
+ *                          - GET /api/products
+ *                          - GET /api/products/{id}
+ *    запит - проміжний код - POST /api/products           - відповідь
+ *                          - PUT /api/products/{id}
+ *                          - DELETE /api/products/{id}
+ *                          
+ *   проміжний код
+ *   
+ *   обробник 1            - обробник 2             - обробник 3                           - обробник 4
+ *   створює HttpContext    Перевіряє авторизацію     шукає обробник маршруту     виконує обробник маршруту
+ *                       ^
+ *                      наш обобник (RequestLoggerService) - логування запиту
+ *   
+ *   
+ *   Middleware (проміжний код) - це компонент, який обробляє HTTP-запити та відповіді в конвеєрі обробки запитів ASP.NET Core.
+ *                          
+ */
 
 
+app.Use(async(HttpContext context, Func<Task> next) =>
+{
+    // Логування запиту
+    var requestLoggerService = context.RequestServices.GetRequiredService<RequestLoggerService>();
+    await requestLoggerService.LogRequestAsync();
+    // Виклик наступного Middleware у конвеєрі
+    await next.Invoke();
+});
 
 
 // Отримати всі продукти GET /api/products
-app.MapGet("/api/products", async (ProductService productService) =>
+app.MapGet("/api/products", async (
+    ProductService productService
+    ) =>
 {
     var products = await productService.GetAllProductsAsync();
     return Results.Ok(products);
 });
 
+
+
+
+
+
 // Отримати один продукт за ідентифікатором GET /api/products/{id}
 // /api/products/1
 // /api/products/2
 // /api/products/3
-app.MapGet("/api/products/{id:int}", async (int id, ProductService productService) =>
+app.MapGet("/api/products/{id:int}", async (
+    int id, 
+    ProductService productService
+    ) =>
 {
     var product = await productService.GetProductByIdAsync(id);
     if (product == null)
@@ -71,14 +110,21 @@ app.MapGet("/api/products/{id:int}", async (int id, ProductService productServic
 });
 
 // Додати продукт POST /api/products
-app.MapPost("/api/products", async ([FromBody] Product newProduct, [FromServices] ProductService productService) =>
+app.MapPost("/api/products", async (
+    [FromBody] Product newProduct, 
+    [FromServices] ProductService productService
+    ) =>
 {
     var product = await productService.AddProductAsync(newProduct);
     return Results.Ok(product);
 });
 
 // Оновити продукт PUT /api/products/{id}
-app.MapPut("/api/products/{id:int}", async (int id, [FromBody] Product updatedProduct, [FromServices] ProductService productService) =>
+app.MapPut("/api/products/{id:int}", async (
+    int id, 
+    [FromBody] Product updatedProduct, 
+    [FromServices] ProductService productService
+    ) =>
 {
     var product = await productService.UpdateProductAsync(id, updatedProduct);
     if (product == null)
@@ -89,7 +135,10 @@ app.MapPut("/api/products/{id:int}", async (int id, [FromBody] Product updatedPr
 });
 
 // Видалити продукт DELETE /api/products/{id}
-app.MapDelete("/api/products/{id:int}", async (int id, [FromServices] ProductService productService) =>
+app.MapDelete("/api/products/{id:int}", async (
+    int id, 
+    [FromServices] ProductService productService
+    ) =>
 {
     var result = await productService.DeleteProductAsync(id);
     if (!result)
