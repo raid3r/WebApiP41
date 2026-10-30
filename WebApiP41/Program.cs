@@ -1,6 +1,7 @@
 using WebApiP41.Models;
 using Microsoft.AspNetCore.Mvc;
 using WebApiP41.Services;
+using WebApiP41.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,7 @@ builder.Services.AddSingleton<IDataProvider<Product>>(c => {
 
 builder.Services.AddSingleton<ProductService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddScoped<RequestLoggerService>();
+builder.Services.AddSingleton<RequestLoggerService>();
 
 // сервер сам себе документує /openapi/v1.json
 builder.Services.AddOpenApi();
@@ -62,20 +63,21 @@ if (app.Environment.IsDevelopment())
  *                       ^
  *                      наш обобник (RequestLoggerService) - логування запиту
  *   
- *   
  *   Middleware (проміжний код) - це компонент, який обробляє HTTP-запити та відповіді в конвеєрі обробки запитів ASP.NET Core.
  *                          
  */
 
 
-app.Use(async(HttpContext context, Func<Task> next) =>
-{
-    // Логування запиту
-    var requestLoggerService = context.RequestServices.GetRequiredService<RequestLoggerService>();
-    await requestLoggerService.LogRequestAsync();
-    // Виклик наступного Middleware у конвеєрі
-    await next.Invoke();
-});
+//app.Use(async(HttpContext context, Func<Task> next) =>
+//{
+//    // Логування запиту
+//    var requestLoggerService = context.RequestServices.GetRequiredService<RequestLoggerService>();
+//    await requestLoggerService.LogRequestAsync();
+//    // Виклик наступного Middleware у конвеєрі
+//    await next.Invoke();
+//});
+app.UseMiddleware<LoggerMiddleware>();
+
 
 
 // Отримати всі продукти GET /api/products
