@@ -5,8 +5,8 @@ using WebApiP41.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
+// Додати сервіси до контейнера залежностей (робота з контроллерами)
+builder.Services.AddControllers();
 
 builder.Services.AddSingleton<IDataProvider<Product>>(c => {
     // Простий спосіб отримати значення з конфігурації, якщо ключ відомий (і значення строкове)
@@ -78,8 +78,8 @@ if (app.Environment.IsDevelopment())
 //});
 app.UseMiddleware<LoggerMiddleware>();
 
-
-
+// Додаємо маршрутизацію для контролерів
+app.MapControllers();
 
 
 app.Run();
