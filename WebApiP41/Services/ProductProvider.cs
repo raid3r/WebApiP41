@@ -2,28 +2,9 @@
 namespace WebApiP41.Services;
 
 // Конкретна реалізація IDataProvider для роботи з продуктами, яка зберігає дані у JSON-файлі
-public class ProductProvider: IDataProvider<Product>
+public class ProductProvider: JsonFileDataProvider<Product>
 {
-    private readonly string dataFile;
-
-    public ProductProvider(string dataFile)
+    public ProductProvider(string dataFile) : base(dataFile)
     {
-        this.dataFile = dataFile;
-    }
-
-    public async Task<ICollection<Product>> GetAllAsync()
-    {
-        if (!File.Exists(dataFile))
-        {
-            return new List<Product>();
-        }
-        var json = await File.ReadAllTextAsync(dataFile);
-        return System.Text.Json.JsonSerializer.Deserialize<List<Product>>(json) ?? new List<Product>();
-    }
-
-    public async Task SaveChanges(ICollection<Product> items)
-    {
-        var json = System.Text.Json.JsonSerializer.Serialize(items);
-        await File.WriteAllTextAsync(dataFile, json);
     }
 }
