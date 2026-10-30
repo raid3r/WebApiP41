@@ -80,75 +80,7 @@ app.UseMiddleware<LoggerMiddleware>();
 
 
 
-// Отримати всі продукти GET /api/products
-app.MapGet("/api/products", async (
-    ProductService productService
-    ) =>
-{
-    var products = await productService.GetAllProductsAsync();
-    return Results.Ok(products);
-});
 
-
-
-
-
-
-// Отримати один продукт за ідентифікатором GET /api/products/{id}
-// /api/products/1
-// /api/products/2
-// /api/products/3
-app.MapGet("/api/products/{id:int}", async (
-    int id, 
-    ProductService productService
-    ) =>
-{
-    var product = await productService.GetProductByIdAsync(id);
-    if (product == null)
-    {
-        return Results.NotFound(); // 404 Not Found
-    }
-    return Results.Ok(product); // 200 OK
-});
-
-// Додати продукт POST /api/products
-app.MapPost("/api/products", async (
-    [FromBody] Product newProduct, 
-    [FromServices] ProductService productService
-    ) =>
-{
-    var product = await productService.AddProductAsync(newProduct);
-    return Results.Ok(product);
-});
-
-// Оновити продукт PUT /api/products/{id}
-app.MapPut("/api/products/{id:int}", async (
-    int id, 
-    [FromBody] Product updatedProduct, 
-    [FromServices] ProductService productService
-    ) =>
-{
-    var product = await productService.UpdateProductAsync(id, updatedProduct);
-    if (product == null)
-    {
-        return Results.NotFound(); // 404 Not Found
-    }
-     return Results.Ok(product);
-});
-
-// Видалити продукт DELETE /api/products/{id}
-app.MapDelete("/api/products/{id:int}", async (
-    int id, 
-    [FromServices] ProductService productService
-    ) =>
-{
-    var result = await productService.DeleteProductAsync(id);
-    if (!result)
-    {
-        return Results.NotFound(); // 404 Not Found
-    }
-    return Results.Ok();
-});
 
 app.Run();
 
