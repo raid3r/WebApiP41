@@ -1,4 +1,6 @@
-﻿namespace WebApiP41.Services;
+﻿using WebApiP41.Models;
+
+namespace WebApiP41.Services;
 
 public class RequestLoggerService
 {
@@ -17,7 +19,14 @@ public class RequestLoggerService
             return;
         }
 
+        var user = httpContext.Items["User"] as User;
+
         var logMessage = $"{DateTime.UtcNow}: {httpContext.Request.Method} {httpContext.Request.Path} IP:{httpContext.Connection.RemoteIpAddress}";
+        if (user != null)
+        {
+            logMessage += $" user: {user.Name}";
+        }
+
         Console.WriteLine(logMessage);
         await File.AppendAllTextAsync("requests.log", logMessage + Environment.NewLine);
     }

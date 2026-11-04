@@ -32,6 +32,17 @@ builder.Services.AddSingleton<ProductService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<RequestLoggerService>();
 
+builder.Services.AddSingleton<IDataProvider<User>>(c =>
+{
+    var dataFile = builder
+    .Configuration
+    .GetRequiredSection("UserService")
+    .GetValue<string>("DataFilePath");
+    return new JsonFileDataProvider<User>(dataFile);
+});
+builder.Services.AddScoped<UserService>();
+
+
 // сервер сам себе документує /openapi/v1.json
 builder.Services.AddOpenApi();
 
@@ -76,6 +87,7 @@ if (app.Environment.IsDevelopment())
 //    // Виклик наступного Middleware у конвеєрі
 //    await next.Invoke();
 //});
+app.UseMiddleware<CheckUserMiddleware>();
 app.UseMiddleware<LoggerMiddleware>();
 
 // Додаємо маршрутизацію для контролерів
@@ -94,10 +106,15 @@ app.Run();
 і записувати у файл в форматі json
 [
 	{
+	"method": "GET",
 	"route": "/api/messages",
-	"method": "GET"
 	"count": 1
-	}
+	},
+    {
+	"method": "POST",
+	"route": "/api/messages",
+	"count": 1
+	},   
 ]
 Завантажуючі дані з файлу, і зберігаючі їх кожен раз
 
@@ -153,4 +170,26 @@ Blazor
 стоврити http файл з тестами методів щоб продемонтрувати як вони працюють
 
   
+
+клієнт1 - запит - сервер - відповідь - клієнт
+клієнт1 - запит - сервер - відповідь - клієнт
+клієнт2 - запит - сервер - відповідь - клієнт
+клієнт1- запит - сервер - відповідь - клієнт
+клієнт3 - запит - сервер - відповідь - клієнт
+клієнт3 - запит - сервер - відповідь - клієнт
+клієнт1 - запит - сервер - відповідь - клієнт
+
+токен у заголовку запиту (зазвичай Authorization: XXXXXXXXXXXXXXXXXX) 
+
+клієнт формуэ запит (без заголовку) з логіном та паролем (логін та пароль у тілі запиту)
+сервер перевіряє логін та пароль, якщо все ок - сервер формує токен (набір символів)
+    + двохфакторна автентифікація (2FA) - додатковий код, який користувач отримує на телефон або пошту
+ - унікальний для кожного користувача
+ - сервер його па'мятає (який токен - який користувач кому належить)
+токен відправляється клієнту у відповіді (зазвичай у тілі відповіді)
+далі клієнт при кожному запиті до сервера відправляє токен у заголовку запиту (зазвичай Authorization: XXXXXXXXXXXXXXXXXX)
+
+
+
+
  */ 

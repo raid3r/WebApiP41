@@ -1,0 +1,27 @@
+@server=https://localhost
+@port=7277
+@token_user1=n+LvD9fqZ0SYXncMlCKl5A==
+@token_user2=JJrKFC2DVkGGNoW160XJEw==
+
+
+POST {{server}}:{{port}}/api/users/register
+Content-Type: application/json
+
+{
+  "name": "Test User 2",
+  "email": "test2@test.com",
+  "password": "123456"
+}
+
+### Проблеми які вирішує DTO (data transfer object)
+### зайве поле (щоб пройти перевірку)
+### взаємовикючаючі правила валідації в різних сценаріях використання
+
+
+POST {{server}}:{{port}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "test1@test.com",
+  "password": "123456"
+}
