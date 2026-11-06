@@ -4,6 +4,7 @@ using WebApiP41.Services;
 
 namespace WebApiP41.Controllers;
 
+[Tags("Product Management")]
 [ApiController]
 [Route("api/products")] // api/products
 public class ProductController : ControllerBase
