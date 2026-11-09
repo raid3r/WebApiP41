@@ -24,9 +24,10 @@ public class UserController(UserService userService): ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterUser([FromBody, Description("Register request")] RegisterRequest request)
     {
+        // перетворюємо DTO в модель користувача
         var newUser = new User
         {
-            Name = request.
+            Name = request.Name,
             Email = request.Email,
             Password = request.Password
         };
@@ -34,10 +35,12 @@ public class UserController(UserService userService): ControllerBase
         try
         {
             var registeredUser = await userService.RegisterUserAsync(newUser);
+
+            // перетворюємо модель користувача в DTO для відповіді
             return Ok(new AuthResponse
             {
-                Name = newUser.Name,
-                Token = newUser.Token
+                Name = registeredUser.Name,
+                Token = registeredUser.Token
             });
         }
         catch (Exception e) {
@@ -64,6 +67,8 @@ public class UserController(UserService userService): ControllerBase
         {
             return Unauthorized(); // 401 Unauthorized
         }
+
+        // перетворюємо модель користувача в DTO для відповіді
         return Ok(new AuthResponse
         {
             Name = authenticatedUser.Name,
@@ -72,6 +77,47 @@ public class UserController(UserService userService): ControllerBase
     }
 
 
+
+    /// <summary>
+    /// Get all users
+    /// </summary>
+    /// <returns>A collection of all users</returns>
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var users = await userService.GetAllUsersAsync();
+
+        // перетворюємо колекцію моделей користувачів в колекцію DTO для відповіді
+        var userViewModels = users.Select(u => new UserViewModel
+        {
+            Name = u.Name,
+            Email = u.Email
+        });
+        return Ok(userViewModels);
+    }
+
+    
+    /// <summary>
+    /// Get a user by their email
+    /// </summary>
+    /// <param name="email">The email of the user to retrieve</param>
+    /// <returns>The user with the specified email, or a 404 Not Found if not found</returns>
+    [HttpGet("{email}")]
+    public async Task<IActionResult> GetUserByEmail(string email)
+    {
+        var user = await userService.GetUserByEmailIdAsync(email);
+        if (user == null)
+        {
+            return NotFound(); // 404 Not Found
+        }
+        // перетворюємо модель користувача в DTO для відповіді
+        var userViewModel = new UserViewModel
+        {
+            Name = user.Name,
+            Email = user.Email
+        };
+        return Ok(userViewModel); // 200 OK
+    }
 
 
 }

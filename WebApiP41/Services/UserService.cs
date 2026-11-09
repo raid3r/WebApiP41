@@ -57,6 +57,15 @@ public class UserService(IDataProvider<User> dataProvider)
         return users.FirstOrDefault(u => u.Token == token);
     }
 
+    public async Task<ICollection<User>> GetAllUsersAsync()
+    {
+        return await dataProvider.GetAllAsync();
+    }
 
+    public async Task<User?> GetUserByEmailIdAsync(string email)
+    {
+        var users = await dataProvider.GetAllAsync();
+        return users.FirstOrDefault(u => u.Email == email);
+    }
 
 }
