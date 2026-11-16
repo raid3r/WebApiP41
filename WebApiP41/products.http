@@ -3,7 +3,7 @@
 @token_user1=uSizmto3Zk2riViQN9+9sQ==
 
 
-GET {{server}}:{{port}}/api/products
+GET {{server}}:{{port}}/api/products?page=2&pageSize=5
 Accept: application/json
 Authorization: Bearer {{token_user1}}
 
@@ -21,7 +21,7 @@ Accept: application/json
 Authorization: Bearer {{token_user1}}
 
 {
-  "name": "Bread",
+  "name": "Bread 5",
   "price": 8.99,
   "description": "Bread"
 }

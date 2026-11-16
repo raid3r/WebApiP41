@@ -43,7 +43,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/openapi/v1.json", "My API V1");        
+        c.SwaggerEndpoint("/openapi/v1.json", "My API V1");    
+        c.RoutePrefix = "swagger"; // Доступ до Swagger UI за адресою /swagger
     });
     
 }
@@ -82,6 +83,7 @@ app.UseMiddleware<LoggerMiddleware>();
 // Додаємо маршрутизацію для контролерів
 app.MapControllers();
 
+app.UseStaticFiles(); // Додаємо підтримку статичних файлів (наприклад, index.html)
 
 app.Run();
 
@@ -229,6 +231,30 @@ OperationResult (success, error)
 
 
 Напишіть order.http з методами перевірки роботи контролера замовлень
+
+
+
+Категорія
+- id
+- назва
+- дата-час створення
+- дата-час оновлення
+
+Створити модель
+Додати до контексту бази даних
+Сторити міграцію і застосувати її до бази даних
+Створити сервіс для роботи з моделлю
+Створити контролер для роботи з моделлю
+
+---
+
+Створити хтмл+js сторінку для роботи з моделлю через апі
+- перегляд усіх категорій
+- додавання нової категорії
+- редагування існуючої категорії
+- видалення існуючої категорії
+
+
 
 
  */

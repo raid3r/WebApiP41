@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApiP41.Models.DTO;
 using WebApiP41.Models;
 using WebApiP41.Services;
 
@@ -27,17 +28,17 @@ public class ProductController : ControllerBase
     }
 
 
-    // Отримати всі продукти GET /api/products
+    // Отримати всі продукти GET /api/products?page=1&pageSize=10&orderBy=Name&orderDirection=asc&filter=someFilter
     [HttpGet]
-    public async Task<IActionResult> GetAllProducts()
+    public async Task<IActionResult> GetPagedProducts([FromQuery] PageRequest pageRequest)
     {
         if (!CheckUser())
         {
             return Unauthorized();
         }
 
-        var products = await _productService.GetAllProductsAsync();
-        return Ok(products);
+        var result = await _productService.GetPagedProductsAsync(pageRequest);
+        return Ok(result);
     }
     
     // Додати продукт POST /api/products
