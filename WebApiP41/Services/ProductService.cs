@@ -1,46 +1,33 @@
-﻿using WebApiP41.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApiP41.Models;
 
 namespace WebApiP41.Services;
 
-public class ProductService
+public class ProductService(ApiDbContext dbContext)
 {
-    // Зберігаємо посилання на IDataProvider<Product> для доступу до даних продуктів
-    private readonly IDataProvider<Product> dataProvider;
-
-    // Отримуємо IDataProvider<Product> через DI (Dependency Injection)
-    public ProductService(IDataProvider<Product> dataProvider)
-    {
-        this.dataProvider = dataProvider;
-    }
-        
     public async Task<List<Product>> GetAllProductsAsync()
     {
-        // використовуємо dataProvider для отримання всіх продуктів
-        var products = await dataProvider.GetAllAsync();
-        return products.ToList();
+        // використовуємо dbContext для отримання всіх продуктів
+        var products = await dbContext.Products.ToListAsync();
+        return products;
     }
 
     public async Task<Product?> GetProductByIdAsync(int id)
     {
-        var products = await dataProvider.GetAllAsync();
-        return products.FirstOrDefault(p => p.Id == id);
+        var product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+        return product;
     }
 
     public async Task<Product> AddProductAsync(Product newProduct)
     {
-        var products = await dataProvider.GetAllAsync();
-        newProduct.Id = products.Count > 0 ? products.Max(p => p.Id) + 1 : 1;
-        products.Add(newProduct);
-
-        // використовуємо dataProvider для збереження змін у колекції продуктів
-        await dataProvider.SaveChanges(products);
+        await dbContext.Products.AddAsync(newProduct);
+        await dbContext.SaveChangesAsync();
         return newProduct;
     }
 
     public async Task<Product?> UpdateProductAsync(int id, Product updatedProduct)
     {
-        var products = await dataProvider.GetAllAsync();
-        var product = products.FirstOrDefault(p => p.Id == id);
+        var product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
         {
             return null;
@@ -48,20 +35,19 @@ public class ProductService
         product.Name = updatedProduct.Name;
         product.Price = updatedProduct.Price;
         product.Description = updatedProduct.Description;
-        await dataProvider.SaveChanges(products);
+        await dbContext.SaveChangesAsync();
         return product;
     }
 
     public async Task<bool> DeleteProductAsync(int id)
     {
-        var products = await dataProvider.GetAllAsync();
-        var product = products.FirstOrDefault(p => p.Id == id);
+        var product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
         {
             return false;
         }
-        products.Remove(product);
-        await dataProvider.SaveChanges(products);
+        dbContext.Products.Remove(product);
+        await dbContext.SaveChangesAsync();
         return true;
     }
 }

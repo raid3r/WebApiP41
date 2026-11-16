@@ -1,49 +1,38 @@
-using WebApiP41.Models;
 using Microsoft.AspNetCore.Mvc;
-using WebApiP41.Services;
+using System.Reflection;
 using WebApiP41.Middlewares;
+using WebApiP41.Models;
+using WebApiP41.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Додати сервіси до контейнера залежностей (робота з контроллерами)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Додати контекст бази даних до контейнера залежностей
+builder.Services.AddDbContext<ApiDbContext>(options =>
+    options.UseSqlite(connectionString) // Використовуємо SQLite як базу даних
+);
+
+// AutoMapper configuration
+builder.Services.AddAutoMapper(c => {
+   
+
+}, typeof(Program));
+
+// Додати сервіси до контейнера залежностей (робота з контролерами)
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<IDataProvider<Product>>(c => {
-    // Простий спосіб отримати значення з конфігурації, якщо ключ відомий (і значення строкове)
-    //var dataFile = builder.Configuration["ProductService:DataFilePath"];
-
-    // Більш безпечний спосіб отримати значення з конфігурації, якщо ключ відомий (і значення строкове)
-    var dataFile = builder
-    .Configuration
-    .GetRequiredSection("ProductService")
-    .GetValue<string>("DataFilePath");
-
-    // Приклад, якщо в appsettings.json є секція ProductService з параметром Active,
-    // який визначає, чи активний сервіс продуктів
-    var active = builder
-    .Configuration
-    .GetRequiredSection("ProductService")
-    .GetValue<bool>("Active");
-
-    return new ProductProvider(dataFile);
-});
-
-builder.Services.AddSingleton<ProductService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<RequestLoggerService>();
 
-builder.Services.AddSingleton<IDataProvider<User>>(c =>
-{
-    var dataFile = builder
-    .Configuration
-    .GetRequiredSection("UserService")
-    .GetValue<string>("DataFilePath");
-    return new JsonFileDataProvider<User>(dataFile);
-});
+
+// Додати сервіси до контейнера залежностей
+builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<OrderService>();
 
-
-// сервер сам себе документує /openapi/v1.json
+// сервер сам собі документує /openapi/v1.json
 builder.Services.AddOpenApi();
 
 
@@ -54,9 +43,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/openapi/v1.json", "My API V1");
-       
+        c.SwaggerEndpoint("/openapi/v1.json", "My API V1");        
     });
+    
 }
 
 
@@ -98,7 +87,7 @@ app.Run();
 
 
 /*
- Переробити проєкт про повідомлення з попереднього завдання на використання контроллера
+ Переробити проєкт про повідомлення з попереднього завдання на використання контролера
 
 ---
 
@@ -200,4 +189,46 @@ Blazor
 - свойства DTO моделей
 
 
- */ 
+---
+
+Додати AutoMapper пакет до проєкту
+додати профілі перетворень моделей в DTO і навпаки
+використати цей функціонал в своєму проєкті
+
+
+
+Створіть модель замовлення з полями:
+номер замовлення;
+кількість товарів;
+вартість товарів;
+дата-час замовлення;
+виконано (так/ні);
+коментар.
+
+Номер замовлення, дату-час замовлення і позначку «виконано» заповнює сервер. 
+Нове замовлення завжди невиконане.
+
+Створіть контролер замовлень з методами:
+список замовлень;
+додати замовлення;
+оновити кількість товарів у замовленні;
+змінити статус замовлення (виконано/не виконано).
+
+CreaterOrderRequest ->  Order
+Order -> OrderViewModel
+
+OperationResult (success, error)
+
+Для кожного методу використовуйте DTO, модель замовлення напряму не приймається і не повертається:
+для додавання: лише ті поля, які заповнює клієнт;
+для оновлення кількості: лише кількість товарів;
+для зміни статусу: лише позначка «виконано»;
+для відповіді: поля замовлення плюс текстовий статус «виконано» або «не виконано».
+Перетворення між моделлю і DTO описуйте в окремому профілі AutoMapper для замовлень. Поля, які заповнює сервер, у профілі свідомо ігноруються.
+Перевірки даних: кількість товарів більша за нуль, вартість більша за нуль, коментар не довший за 200 символів.
+
+
+Напишіть order.http з методами перевірки роботи контролера замовлень
+
+
+ */

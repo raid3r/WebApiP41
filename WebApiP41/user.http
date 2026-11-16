@@ -1,15 +1,14 @@
 @server=https://localhost
 @port=7277
-@token_user1=n+LvD9fqZ0SYXncMlCKl5A==
-@token_user2=JJrKFC2DVkGGNoW160XJEw==
+@token_user1=uSizmto3Zk2riViQN9+9sQ==
 
 
 POST {{server}}:{{port}}/api/users/register
 Content-Type: application/json
 
 {
-  "name": "Test User 2",
-  "email": "test2@test.com",
+  "name": "Test User 1",
+  "email": "test1@test.com",
   "password": "123456"
 }
 

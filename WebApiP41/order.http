@@ -1,0 +1,28 @@
+@server=https://localhost
+@port=7277
+
+POST {{server}}:{{port}}/api/order
+Content-Type: application/json
+
+{
+  "productQuantity": 10,
+  "productPrice": 99.99,
+  "comment": "Test order"
+}
+
+
+### 
+PUT {{server}}:{{port}}/api/order/1/quantity
+Content-Type: application/json
+
+{
+  "newQuantity": 20
+}
+
+### 
+PUT {{server}}:{{port}}/api/order/1/status
+Content-Type: application/json
+
+{
+  "newStatus": true
+}

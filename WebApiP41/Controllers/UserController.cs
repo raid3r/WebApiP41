@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApiP41.Services;
 using WebApiP41.Models;
 using WebApiP41.Models.DTO;
+using AutoMapper;
 
 
 namespace WebApiP41.Controllers;
@@ -12,7 +13,7 @@ namespace WebApiP41.Controllers;
 [Tags("User Management")]
 //[Produces("application/json")]
 //[Consumes("application/json")]
-public class UserController(UserService userService): ControllerBase
+public class UserController(UserService userService, IMapper mapper): ControllerBase
 {
 
     // реєстрація нового користувача POST /api/users/register
@@ -25,23 +26,15 @@ public class UserController(UserService userService): ControllerBase
     public async Task<IActionResult> RegisterUser([FromBody, Description("Register request")] RegisterRequest request)
     {
         // перетворюємо DTO в модель користувача
-        var newUser = new User
-        {
-            Name = request.Name,
-            Email = request.Email,
-            Password = request.Password
-        };
+        var newUser = mapper.Map<User>(request);
 
         try
         {
             var registeredUser = await userService.RegisterUserAsync(newUser);
 
             // перетворюємо модель користувача в DTO для відповіді
-            return Ok(new AuthResponse
-            {
-                Name = registeredUser.Name,
-                Token = registeredUser.Token
-            });
+            var authResponse = mapper.Map<AuthResponse>(registeredUser);
+            return Ok(authResponse);
         }
         catch (Exception e) {
             return BadRequest(e.Message);
@@ -69,11 +62,8 @@ public class UserController(UserService userService): ControllerBase
         }
 
         // перетворюємо модель користувача в DTO для відповіді
-        return Ok(new AuthResponse
-        {
-            Name = authenticatedUser.Name,
-            Token = authenticatedUser.Token
-        }); // 200 OK
+        var authResponse = mapper.Map<AuthResponse>(authenticatedUser);
+        return Ok(authResponse); // 200 OK
     }
 
 
@@ -88,11 +78,7 @@ public class UserController(UserService userService): ControllerBase
         var users = await userService.GetAllUsersAsync();
 
         // перетворюємо колекцію моделей користувачів в колекцію DTO для відповіді
-        var userViewModels = users.Select(u => new UserViewModel
-        {
-            Name = u.Name,
-            Email = u.Email
-        });
+        var userViewModels = users.Select(u => mapper.Map<UserViewModel>(u));
         return Ok(userViewModels);
     }
 
@@ -111,11 +97,7 @@ public class UserController(UserService userService): ControllerBase
             return NotFound(); // 404 Not Found
         }
         // перетворюємо модель користувача в DTO для відповіді
-        var userViewModel = new UserViewModel
-        {
-            Name = user.Name,
-            Email = user.Email
-        };
+        var userViewModel = mapper.Map<UserViewModel>(user);
         return Ok(userViewModel); // 200 OK
     }
 

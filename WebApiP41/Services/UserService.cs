@@ -1,24 +1,28 @@
 ﻿using WebApiP41.Models;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace WebApiP41.Services;
 
-public class UserService(IDataProvider<User> dataProvider)
+public class UserService(ApiDbContext dbContext)
 {
 
     // реєстрація нового користувача
     public async Task<User> RegisterUserAsync(User newUser)
     {
-        var users = await dataProvider.GetAllAsync();
-
-        if (users.FirstOrDefault(x => x.Email == newUser.Email) != null) {
+        // перевірка, чи користувач з таким email вже існує
+        if (await dbContext.Users
+                .AnyAsync(x => x.Email == newUser.Email))
+        {
             throw new InvalidDataException("User already exists");
         }
 
-
-
         newUser.Token = GenerateToken(newUser);
-        users.Add(newUser);
-        await dataProvider.SaveChanges(users);
+
+        // збереження нового користувача в базі даних
+        await dbContext.Users.AddAsync(newUser);
+        // збереження змін в базі даних
+        await dbContext.SaveChangesAsync();
         return newUser;
     }
 
@@ -26,8 +30,8 @@ public class UserService(IDataProvider<User> dataProvider)
     // перевірка логіна та пароля користувача
     public async Task<User?> AuthenticateUserAsync(string email, string password)
     {
-        var users = await dataProvider.GetAllAsync();
-        var user = users.FirstOrDefault(u => u.Email == email && u.Password == password);
+        var user = await dbContext.Users
+            .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
 
         // закоментовано для демонстрації, щоб токен не змінювався при кожному логіні,
         // а залишався постійним для користувача
@@ -35,7 +39,7 @@ public class UserService(IDataProvider<User> dataProvider)
         //if (user != null)
         //{
         //    user.Token = GenerateToken(user); // генеруємо новий токен для користувача
-        //    await dataProvider.SaveChanges(users);
+        //    await dbContext.SaveChangesAsync();
         //}
         return user;
     }
@@ -53,19 +57,17 @@ public class UserService(IDataProvider<User> dataProvider)
     // перевірка токена користувача (приймає токен. повертає користувача або null)
     public async Task<User?> ValidateTokenAsync(string token)
     {
-        var users = await dataProvider.GetAllAsync();
-        return users.FirstOrDefault(u => u.Token == token);
+        return await dbContext.Users.FirstOrDefaultAsync(u => u.Token == token);
     }
 
     public async Task<ICollection<User>> GetAllUsersAsync()
     {
-        return await dataProvider.GetAllAsync();
+        return await dbContext.Users.ToListAsync();
     }
 
     public async Task<User?> GetUserByEmailIdAsync(string email)
     {
-        var users = await dataProvider.GetAllAsync();
-        return users.FirstOrDefault(u => u.Email == email);
+        return await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
 
 }

@@ -1,31 +1,36 @@
 @server=https://localhost
 @port=7277
+@token_user1=uSizmto3Zk2riViQN9+9sQ==
 
 
 GET {{server}}:{{port}}/api/products
 Accept: application/json
+Authorization: Bearer {{token_user1}}
 
 ###
 
 GET {{server}}:{{port}}/api/products/2
 Accept: application/json
+Authorization: Bearer {{token_user1}}
 
 
 ###
 POST {{server}}:{{port}}/api/products
 Content-Type: application/json
 Accept: application/json
+Authorization: Bearer {{token_user1}}
 
 {
-  "name": "New Product",
-  "price": 19.99,
-  "description": "This is a new product."
+  "name": "Bread",
+  "price": 8.99,
+  "description": "Bread"
 }
 
 ###
 PUT {{server}}:{{port}}/api/products/4
 Content-Type: application/json
 Accept: application/json
+Authorization: Bearer {{token_user1}}
 
 {
   "id": 1,
@@ -35,5 +40,6 @@ Accept: application/json
 }
 
 ###
-DELETE {{server}}:{{port}}/api/products/2
+DELETE {{server}}:{{port}}/api/products/4
 Accept: application/json
+Authorization: Bearer {{token_user1}}
