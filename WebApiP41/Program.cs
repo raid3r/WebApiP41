@@ -10,8 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Додати контекст бази даних до контейнера залежностей
+//builder.Services.AddDbContext<ApiDbContext>(options =>
+//    options.UseSqlite(connectionString) // Використовуємо SQLite як базу даних
+//);
+// SQL Server
 builder.Services.AddDbContext<ApiDbContext>(options =>
-    options.UseSqlite(connectionString) // Використовуємо SQLite як базу даних
+    options.UseSqlServer(connectionString) // Використовуємо SQL Server як базу даних
 );
 
 // AutoMapper configuration
@@ -259,5 +263,9 @@ OperationResult (success, error)
 
 оновити фронтенд застосунок щоб була підтримка пагінації для категорій
 
+
+
+Додати сортування по назві категорії за зростанням і спаданням
+Додати поле фільтрації по назві категорії
 
  */
