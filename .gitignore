@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /WebApiP41/api.db
 /WebApiP41/api.db-shm
 /WebApiP41/api.db-wal
+/WebApiP41/wwwroot/uploads
