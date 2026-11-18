@@ -2,7 +2,7 @@
 
 namespace WebApiP41.Models.DTO;
 
-public class PageRequest
+public class PageRequest<T> where T : class
 {
     [Range(1, int.MaxValue, ErrorMessage = "Page must be greater than 0")]
     public int Page { get; set; } = 1;
@@ -11,5 +11,7 @@ public class PageRequest
     // Id - означає сортування за ідентифікатором по зростанню,
     // -Id - означає сортування за ідентифікатором по спаданню
     public string? OrderBy { get; set; }
-    
+
+    public T? Filter { get; set; }
+
 }

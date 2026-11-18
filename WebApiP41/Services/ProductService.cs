@@ -6,7 +6,7 @@ namespace WebApiP41.Services;
 
 public class ProductService(ApiDbContext dbContext)
 {
-    public async Task<PageResult<Product>> GetPagedProductsAsync(PageRequest pageRequest)
+    public async Task<PageResult<Product>> GetPagedProductsAsync(PageRequest<ProductFilter> pageRequest)
     {
         // пагінація 
         // 50
@@ -34,7 +34,41 @@ public class ProductService(ApiDbContext dbContext)
          */
 
 
+        // + фільтрація, сортування, пошук (filtering, sorting, searching)
+        // фільтрація (делегат який застосовує для додавання до запиту параметрів фільтрації)
+        Func<IQueryable<Product>, IQueryable<Product>> filter = (q) =>
+        {
+            if (pageRequest.Filter != null)
+            {
+                // якщо вказано фільтр по імені, то застосовуємо його
+                if (!string.IsNullOrEmpty(pageRequest.Filter.Name))
+                {
+                    // WHERE Name LIKE '%filter.Name%'
+                    q = q.Where(p => p.Name.Contains(pageRequest.Filter.Name));
+                }
+                // якщо вказано фільтр по ціні (мінімальна ціна), то застосовуємо його
+                if (pageRequest.Filter.MinPrice.HasValue)
+                {
+                    // AND Price >= filter.MinPrice
+                    q = q.Where(p => p.Price >= pageRequest.Filter.MinPrice.Value);
+                }
+                // якщо вказано фільтр по ціні (максимальна ціна), то застосовуємо його
+                if (pageRequest.Filter.MaxPrice.HasValue)
+                {
+                    // AND Price <= filter.MaxPrice
+                    q = q.Where(p => p.Price <= pageRequest.Filter.MaxPrice.Value);
+                }
+                // якщо вказано фільтр по опису, то застосовуємо його
+                if (!string.IsNullOrEmpty(pageRequest.Filter.Description))
+                {
+                    // AND Description LIKE '%filter.Description%'
+                    q = q.Where(p => p.Description.Contains(pageRequest.Filter.Description));
+                }
+            }
+            return q;
+        };
 
+        // сортування (делегат який застосовує для додавання до запиту параметрів сорутвання)
         Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = (q) =>
         {
             return pageRequest.OrderBy switch
@@ -48,31 +82,35 @@ public class ProductService(ApiDbContext dbContext)
                 _ => q.OrderBy(p => p.Id) // сортування за замовчуванням, якщо параметр OrderBy не вказаний або невідомий
             };
         };
-
-
-        // + фільтрація, сортування, пошук (filtering, sorting, searching)
+        
+        // пагінація (делегат який застосовує для додавання до запиту параметрів пагінації)
+        Func<IQueryable<Product>, IQueryable<Product>> paginate = (q) =>
+        {
+            return q
+            .Skip((pageRequest.Page - 1) * pageRequest.PageSize)
+            .Take(pageRequest.PageSize);
+        };
 
         var query = dbContext.Products.AsQueryable();
 
+        // застосовуємо фільтрацію
+        query = filter(query);
+        // застосовуємо сортування
         query = orderBy(query);
+        
 
         // SELECT COUNT(*) FROM Products ORDER BY Name DESC
         var totalItems = await query.CountAsync();
 
-
-
-
-
+        // застосовуємо пагінацію
+        query = paginate(query);
         // використовуємо dbContext для отримання всіх продуктів // 4
         // SELECT * FROM Products ORDER BY Name DESC LIMIT 10 OFFSET 30
-        var products = await query
-            .Skip((pageRequest.Page - 1) * pageRequest.PageSize)
-            .Take(pageRequest.PageSize)
-            .ToListAsync();
+        var products = await query.ToListAsync();
 
-
-
+        // обчислюємо загальну кількість сторінок
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageRequest.PageSize);
+        // створюємо об'єкт PageResult<Product> для повернення результату
         var result = new PageResult<Product>
         {
             TotalItems = totalItems,

@@ -3,7 +3,7 @@
 @token_user1=xh8XFYHokEaPsPWCqQ/VfQ==
 
 
-GET {{server}}:{{port}}/api/products?page=1&pageSize=5&orderBy=Name
+GET {{server}}:{{port}}/api/products?page=1&pageSize=5&orderBy=-Name&filter.minPrice=100
 Accept: application/json
 Authorization: Bearer {{token_user1}}
 
