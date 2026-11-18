@@ -8,4 +8,8 @@ public class PageRequest
     public int Page { get; set; } = 1;
     [Range(1, 100, ErrorMessage = "PageSize must be between 1 and 100")]
     public int PageSize { get; set; } = 10;
+    // Id - означає сортування за ідентифікатором по зростанню,
+    // -Id - означає сортування за ідентифікатором по спаданню
+    public string? OrderBy { get; set; }
+    
 }

@@ -28,7 +28,7 @@ public class ProductController : ControllerBase
     }
 
 
-    // Отримати всі продукти GET /api/products?page=1&pageSize=10&orderBy=Name&orderDirection=asc&filter=someFilter
+    // Отримати всі продукти GET /api/products?page=1&pageSize=10&orderBy=-Name
     [HttpGet]
     public async Task<IActionResult> GetPagedProducts([FromQuery] PageRequest pageRequest)
     {

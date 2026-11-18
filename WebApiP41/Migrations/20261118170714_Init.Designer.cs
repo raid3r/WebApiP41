@@ -11,7 +11,7 @@ using WebApiP41.Models;
 namespace WebApiP41.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20261113170408_Init")]
+    [Migration("20261118170714_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -64,8 +64,8 @@ namespace WebApiP41.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("TEXT");
+                    b.Property<double>("Price")
+                        .HasColumnType("REAL");
 
                     b.HasKey("Id");
 

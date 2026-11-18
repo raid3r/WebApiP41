@@ -1,6 +1,6 @@
 @server=https://localhost
 @port=7277
-@token_user1=uSizmto3Zk2riViQN9+9sQ==
+@token_user1=xh8XFYHokEaPsPWCqQ/VfQ==
 
 
 POST {{server}}:{{port}}/api/users/register

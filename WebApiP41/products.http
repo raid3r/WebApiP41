@@ -1,9 +1,9 @@
 @server=https://localhost
 @port=7277
-@token_user1=uSizmto3Zk2riViQN9+9sQ==
+@token_user1=xh8XFYHokEaPsPWCqQ/VfQ==
 
 
-GET {{server}}:{{port}}/api/products?page=2&pageSize=5
+GET {{server}}:{{port}}/api/products?page=1&pageSize=5&orderBy=Name
 Accept: application/json
 Authorization: Bearer {{token_user1}}
 
@@ -43,3 +43,137 @@ Authorization: Bearer {{token_user1}}
 DELETE {{server}}:{{port}}/api/products/4
 Accept: application/json
 Authorization: Bearer {{token_user1}}
+
+###
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Bread",
+  "price": 8.99,
+  "description": "Bread"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Milk",
+  "price": 1.49,
+  "description": "Fresh milk 1L"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Cheese",
+  "price": 12.5,
+  "description": "Hard cheese 300g"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Apple",
+  "price": 0.99,
+  "description": "Red apple, 1 pc"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Coffee",
+  "price": 105.75,
+  "description": "Ground coffee 250g"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Tea",
+  "price": 34.2,
+  "description": "Black tea, 50 bags"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Chocolate",
+  "price": 3.79,
+  "description": "Milk chocolate bar"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Olive Oil",
+  "price": 199.99,
+  "description": "Extra virgin olive oil 500ml"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Pasta",
+  "price": 2.25,
+  "description": "Spaghetti 500g"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Orange Juice",
+  "price": 5.6,
+  "description": "Orange juice 1L"
+}
+
+###
+POST {{server}}:{{port}}/api/products
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token_user1}}
+
+{
+  "name": "Butter",
+  "price": 9.1,
+  "description": "Butter 200g"
+}

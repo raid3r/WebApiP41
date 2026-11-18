@@ -34,22 +34,44 @@ public class ProductService(ApiDbContext dbContext)
          */
 
 
-        var query = dbContext.Products.AsQueryable();
+
+        Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = (q) =>
+        {
+            return pageRequest.OrderBy switch
+            {
+                "Id" => q.OrderBy(p => p.Id), // сортування за зростанням по ідентифікатору
+                "-Id" => q.OrderByDescending(p => p.Id), // сортування за спаданням по ідентифікатору
+                "Name" => q.OrderBy(p => p.Name), // сортування за зростанням по імені
+                "-Name" => q.OrderByDescending(p => p.Name), // сортування за спаданням по імені
+                "Price" => q.OrderBy(p => p.Price), // сортування за зростанням по ціні
+                "-Price" => q.OrderByDescending(p => p.Price), // сортування за спаданням по ціні
+                _ => q.OrderBy(p => p.Id) // сортування за замовчуванням, якщо параметр OrderBy не вказаний або невідомий
+            };
+        };
+
 
         // + фільтрація, сортування, пошук (filtering, sorting, searching)
 
-        // SELECT COUNT(*) FROM Products
+        var query = dbContext.Products.AsQueryable();
+
+        query = orderBy(query);
+
+        // SELECT COUNT(*) FROM Products ORDER BY Name DESC
         var totalItems = await query.CountAsync();
 
+
+
+
+
         // використовуємо dbContext для отримання всіх продуктів // 4
-        // SELECT * FROM Products LIMIT 10 OFFSET 30
+        // SELECT * FROM Products ORDER BY Name DESC LIMIT 10 OFFSET 30
         var products = await query
             .Skip((pageRequest.Page - 1) * pageRequest.PageSize)
             .Take(pageRequest.PageSize)
             .ToListAsync();
 
 
-        
+
         var totalPages = (int)Math.Ceiling(totalItems / (double)pageRequest.PageSize);
         var result = new PageResult<Product>
         {
