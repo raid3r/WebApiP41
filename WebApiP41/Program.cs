@@ -35,6 +35,8 @@ builder.Services.AddScoped<RequestLoggerService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<SiteConfigService>();
+builder.Services.AddScoped<UploadImageService>();
 
 // сервер сам собі документує /openapi/v1.json
 builder.Services.AddOpenApi();

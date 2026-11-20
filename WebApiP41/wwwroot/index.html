@@ -11,9 +11,15 @@
 
     <a href="/swagger">Swagger UI</a>
 
-    
 
-    <form method="post" enctype="multipart/form-data" action="/upload">
+
+    <form method="post" enctype="multipart/form-data" action="/upload/background">
+        <input type="file" name="file" accept=".jpg,.jpeg,.png,.gif" />
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>User image (ID:1)</h2>
+    <form method="post" enctype="multipart/form-data" action="/api/users/1/image">
         <input type="file" name="file" accept=".jpg,.jpeg,.png,.gif" />
         <button type="submit">Upload</button>
     </form>

@@ -22,6 +22,30 @@ namespace WebApiP41.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("WebApiP41.Models.ImageFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Filename")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalFilename")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images");
+                });
+
             modelBuilder.Entity("WebApiP41.Models.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -78,6 +102,24 @@ namespace WebApiP41.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("WebApiP41.Models.SiteConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BackgroundImageId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BackgroundImageId");
+
+                    b.ToTable("SiteConfig");
+                });
+
             modelBuilder.Entity("WebApiP41.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -89,6 +131,9 @@ namespace WebApiP41.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -104,7 +149,27 @@ namespace WebApiP41.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ImageId");
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("WebApiP41.Models.SiteConfig", b =>
+                {
+                    b.HasOne("WebApiP41.Models.ImageFile", "BackgroundImage")
+                        .WithMany()
+                        .HasForeignKey("BackgroundImageId");
+
+                    b.Navigation("BackgroundImage");
+                });
+
+            modelBuilder.Entity("WebApiP41.Models.User", b =>
+                {
+                    b.HasOne("WebApiP41.Models.ImageFile", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
+                    b.Navigation("Image");
                 });
 #pragma warning restore 612, 618
         }

@@ -13,7 +13,11 @@ namespace WebApiP41.Controllers;
 [Tags("User Management")]
 //[Produces("application/json")]
 //[Consumes("application/json")]
-public class UserController(UserService userService, IMapper mapper): ControllerBase
+public class UserController(
+    UserService userService, 
+    IMapper mapper, 
+    UploadImageService uploadImageService
+    ): ControllerBase
 {
 
     // реєстрація нового користувача POST /api/users/register
@@ -99,6 +103,64 @@ public class UserController(UserService userService, IMapper mapper): Controller
         // перетворюємо модель користувача в DTO для відповіді
         var userViewModel = mapper.Map<UserViewModel>(user);
         return Ok(userViewModel); // 200 OK
+    }
+
+
+    [HttpPost("{id:int}")]
+    public async Task<IActionResult> GeetUserById(int id)
+    {
+        var user = await userService.GetUserByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound(); // 404 Not Found
+        }
+        // перетворюємо модель користувача в DTO для відповіді
+        var userViewModel = mapper.Map<UserViewModel>(user);
+        return Ok(userViewModel); // 200 OK
+    }
+
+    [HttpPost("{id:int}/image")]
+    public async Task<IActionResult> UploadImage(int id, [FromForm] IFormFile file)
+    {
+        try
+        {
+            // Отримаємо користувача по Ід
+            var user = await userService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound(); // 404 Not Found
+            }
+
+            // зберігаємо нове зображення
+            var image = await uploadImageService.UploadAsync(file);
+            
+            // якщо є старе
+            if (user.Image != null)
+            {
+                // видаляємо
+                await uploadImageService.DeleteAsync(user.Image);
+            }
+            // пов'язуємо з новим зобрадженням
+            user.Image = image;
+            // зберігаємо
+            await userService.UpdateAsync(user);
+
+            // повертаємо успіх
+            return Ok(new OperationResult
+            {
+                Success = true,
+                ErrorMessage = null
+            });
+        }
+        catch (Exception ex)
+        {
+
+            return BadRequest(new OperationResult
+            {
+                Success = false,
+                ErrorMessage = ex.Message
+            });
+        }
     }
 
 

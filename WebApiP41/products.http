@@ -177,3 +177,8 @@ Authorization: Bearer {{token_user1}}
   "price": 9.1,
   "description": "Butter 200g"
 }
+
+
+###
+GET {{server}}:{{port}}/upload/background
+

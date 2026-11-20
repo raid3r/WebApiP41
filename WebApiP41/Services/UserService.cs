@@ -31,6 +31,7 @@ public class UserService(ApiDbContext dbContext)
     public async Task<User?> AuthenticateUserAsync(string email, string password)
     {
         var user = await dbContext.Users
+            .Include(x => x.Image)
             .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
 
         // закоментовано для демонстрації, щоб токен не змінювався при кожному логіні,
@@ -62,12 +63,28 @@ public class UserService(ApiDbContext dbContext)
 
     public async Task<ICollection<User>> GetAllUsersAsync()
     {
-        return await dbContext.Users.ToListAsync();
+        return await dbContext.Users
+            .Include(x => x.Image)
+            .ToListAsync();
     }
 
     public async Task<User?> GetUserByEmailIdAsync(string email)
     {
-        return await dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return await dbContext.Users
+            .Include(x => x.Image)
+            .FirstOrDefaultAsync(u => u.Email == email);
+    }
+
+    public async Task<User?> GetUserByIdAsync(int id)
+    {
+        return await dbContext.Users
+            .Include(x => x.Image)
+            .FirstOrDefaultAsync(u => u.Id == id);
+    }
+
+    public async Task UpdateAsync(User user)
+    {
+        await dbContext.SaveChangesAsync();
     }
 
 }
