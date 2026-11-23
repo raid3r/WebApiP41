@@ -1,9 +1,9 @@
 @server=https://localhost
 @port=7277
-@token_user1=xh8XFYHokEaPsPWCqQ/VfQ==
+@token_user1=PpORsbgTrEqZszIbGYp+Zg==
 
 
-GET {{server}}:{{port}}/api/products?page=1&pageSize=5&orderBy=-Name&filter.minPrice=100
+GET {{server}}:{{port}}/api/products?page=1&pageSize=5&orderBy=-Name
 Accept: application/json
 Authorization: Bearer {{token_user1}}
 

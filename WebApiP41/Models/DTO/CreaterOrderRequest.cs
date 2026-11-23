@@ -8,6 +8,9 @@ namespace WebApiP41.Models.DTO;
 /// </summary>
 public class CreaterOrderRequest
 {
+    [Description("Product in the order.")]
+    public int ProductId { get; set; }
+
     [Description("The quantity of products in the order.")]
     public int ProductQuantity { get; set; }
     [Description("The price of a single product in the order.")]

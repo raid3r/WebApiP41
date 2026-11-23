@@ -1,12 +1,21 @@
 ﻿using FluentValidation;
 using WebApiP41.Models.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApiP41.Models.Validation;
 
 public class CreaterOrderRequestValidator : AbstractValidator<CreaterOrderRequest>
 {
-    public CreaterOrderRequestValidator()
+    public CreaterOrderRequestValidator(ApiDbContext dbContext)
     {
+        // перевірка що productId не є нульовим та існує в базі даних
+        RuleFor(x => x.ProductId)
+            .NotNull().WithMessage("Product ID is required.")
+            .MustAsync(async (productId, cancellationToken) =>
+            {
+                return await dbContext.Products.AnyAsync(p => p.Id == productId, cancellationToken);
+            }).WithMessage("Product with the specified ID does not exist.");
+
         RuleFor(x => x.ProductQuantity)
             .NotNull().WithMessage("Product quantity is required.")
             .GreaterThan(0).WithMessage("Product quantity must be greater than zero.");

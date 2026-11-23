@@ -5,6 +5,7 @@ POST {{server}}:{{port}}/api/order
 Content-Type: application/json
 
 {
+  "productId": 1,
   "productQuantity": 10,
   "productPrice": 99.99,
   "comment": "Test order"

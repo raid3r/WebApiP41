@@ -11,4 +11,6 @@ public class OrderViewModel
     public string CompletedStatus {get; set; }
     public string Comment { get; set; } = string.Empty;
 
+    public ProductView? Product { get; set; }
+
 }

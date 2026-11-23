@@ -11,7 +11,7 @@ public class OrderService(ApiDbContext dbContext)
     /// <returns>Orders collection</returns>
     public async Task<ICollection<Order>> GetAllOrdersAsync()
     {
-        return await dbContext.Orders.ToListAsync();
+        return await dbContext.Orders.Include(o => o.Product).ToListAsync();
     }
 
     public async Task<Order> AddOrderAsync(Order newOrder)
@@ -25,7 +25,7 @@ public class OrderService(ApiDbContext dbContext)
 
     public async Task<Order?> UpdateOrderQuantityAsync(int id, int newQuantity)
     {
-        var order = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == id);
+        var order = await dbContext.Orders.Include(o => o.Product).FirstOrDefaultAsync(o => o.Id == id);
         if (order == null)
         {
             return null;
@@ -37,7 +37,7 @@ public class OrderService(ApiDbContext dbContext)
 
     public async Task<Order?> UpdateOrderStatusAsync(int id, bool isCompleted)
     {
-        var order = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == id);
+        var order = await dbContext.Orders.Include(o => o.Product).FirstOrDefaultAsync(o => o.Id == id);
         if (order == null)
         {
             return null;

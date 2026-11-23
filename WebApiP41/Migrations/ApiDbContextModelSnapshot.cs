@@ -67,6 +67,9 @@ namespace WebApiP41.Migrations
                     b.Property<int>("OrderNumber")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("ProductPrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -74,6 +77,8 @@ namespace WebApiP41.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Orders");
                 });
@@ -152,6 +157,15 @@ namespace WebApiP41.Migrations
                     b.HasIndex("ImageId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("WebApiP41.Models.Order", b =>
+                {
+                    b.HasOne("WebApiP41.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("WebApiP41.Models.SiteConfig", b =>

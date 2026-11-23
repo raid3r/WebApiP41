@@ -3,6 +3,9 @@
 public class Order
 {
     public int Id { get; set; }
+
+    public virtual Product? Product { get; set; }
+
     public int OrderNumber { get; set; } // 01-000123
     public int ProductQuantity { get; set; }
     public decimal ProductPrice { get; set; }

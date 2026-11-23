@@ -297,6 +297,17 @@ FluentValidation.DependencyInjectionExtensions
 - Отримувати через DI сервіс у конструкторі контролера
 
 
+Підлючити до проєкту 
+
+FluentValidation
+FluentValidation.DependencyInjectionExtensions
+
+і переробити усю валідацію в проєкті на використання FluentValidation
+замість атрибутів
+
+RegisterRequest
+LoginRequest
+
 */
 
 
