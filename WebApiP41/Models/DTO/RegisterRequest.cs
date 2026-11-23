@@ -20,10 +20,21 @@ public class RegisterRequest
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid email format")]
     [MaxLength(100, ErrorMessage = "Email cannot exceed 100 characters")]
+    //[EmailNotExistsInDb(ErrorMessage = "Email already exists in the database")]
     public string Email { get; set; }
 
     [Description("The password for the user to be registered")]
     [Required(ErrorMessage = "Password is required")]
     [MinLength(6, ErrorMessage = "Password must be at least 6 characters long")]
     public string Password { get; set; }
+
+    //[Compare("Password", ErrorMessage = "Passwords do not match")]
+    //public string ConfirmPassword { get; set; }
+
+    //public int Role { get; set; } = 0; // 0 - user, 1 - admin, 2 - superadmin
+
+    //public string PhoneNumber { get; set; } // optional phone number for 2FA
+
+
+
 }

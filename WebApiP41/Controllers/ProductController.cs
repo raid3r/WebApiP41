@@ -27,6 +27,7 @@ public class ProductController : ControllerBase
         return true;
     }
 
+    // запит - обробник 1 - обробник 2 - метод контроллеру
 
     // Отримати всі продукти GET /api/products?page=1&pageSize=10&orderBy=-Name&filter.MinPrice=10&filter.MaxPrice=20
     [HttpGet]

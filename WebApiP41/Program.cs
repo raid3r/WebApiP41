@@ -1,9 +1,11 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using WebApiP41.Middlewares;
 using WebApiP41.Models;
 using WebApiP41.Services;
-using Microsoft.EntityFrameworkCore;
+using WebApiP41.Models.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,13 +21,21 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 );
 
 // AutoMapper configuration
-builder.Services.AddAutoMapper(c => {
-   
+builder.Services.AddAutoMapper(c =>
+{
+
 
 }, typeof(Program));
 
+// Додати FluentValidation до контейнера залежностей
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
 // Додати сервіси до контейнера залежностей (робота з контролерами)
-builder.Services.AddControllers();
+builder.Services.AddControllers(o =>
+{
+    o.Filters.Add<FluentValidationActionFilter>();
+
+});
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<RequestLoggerService>();
@@ -49,10 +59,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/openapi/v1.json", "My API V1");    
+        c.SwaggerEndpoint("/openapi/v1.json", "My API V1");
         c.RoutePrefix = "swagger"; // Доступ до Swagger UI за адресою /swagger
     });
-    
+
 }
 
 
@@ -270,4 +280,23 @@ OperationResult (success, error)
 Додати сортування по назві категорії за зростанням і спаданням
 Додати поле фільтрації по назві категорії
 
- */
+---
+
+Доробити моделі, контролер та сервіси для того щоб у категорії
+додалося поле зображення, і була можливість кожній у списку встановити зображення, замінити його
+у разі заміни зображення або видалення категорії її зображення повинні видалятися і з бази даних і з файлової системи
+
+
+FluentValidation
+FluentValidation.DependencyInjectionExtensions
+
+/*
+Способи викиристання FluentValidation
+- Підключити фільтр який буде спрацьовувати перед кожним методом контролера
+- Отримувати через DI сервіс у парметрі метода контролера
+- Отримувати через DI сервіс у конструкторі контролера
+
+
+*/
+
+

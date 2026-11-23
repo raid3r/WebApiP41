@@ -15,7 +15,7 @@ public class UserToUserViewModelMappingProfile: Profile
             .ForMember(dest => dest.Image, opt => opt.MapFrom(src => ImageUrl(src.Image)));
     }
 
-    private string ImageUrl(ImageFile? file )
+    private string? ImageUrl(ImageFile? file )
     {
         if (file == null) { 
             return null;

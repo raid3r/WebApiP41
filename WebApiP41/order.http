@@ -10,6 +10,18 @@ Content-Type: application/json
   "comment": "Test order"
 }
 
+###
+
+POST {{server}}:{{port}}/api/order
+Content-Type: application/json
+
+{
+  "productQuantity": 1000,
+  "productPrice": 1001
+  
+}
+
+
 
 ### 
 PUT {{server}}:{{port}}/api/order/1/quantity
