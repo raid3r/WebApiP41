@@ -21,10 +21,49 @@ public class GlobalExceptionHandler(
          */
         logger.LogError(exception, "Unhandled exception occurred while processing the request.");
 
+        if (exception is OrderNotAcceptedByTimeException orderNotAcceptedEx)
+        {
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Not operation time",
+                Detail = orderNotAcceptedEx.Message,
+                Type = "https://example.com/probs/invalid-operation",
+                Extensions = { { "startHour", orderNotAcceptedEx.StartHour }, { "endHour", orderNotAcceptedEx.EndHour } }
+            };
+            return await problemDetailsService.TryWriteAsync(
+                new ProblemDetailsContext
+                {
+                    HttpContext = httpContext,
+                    ProblemDetails = problemDetails
+                }
+            );
+        }
+
+        //if (exception is ValidationException validationException)
+        //{
+        //    var problemDetails = new ValidationProblemDetails(validationException.Errors.ToDictionary(
+        //        error => error.PropertyName,
+        //        error => new[] { error.ErrorMessage }
+        //    ))
+        //    {
+        //        Status = StatusCodes.Status400BadRequest,
+        //        Title = "Validation Error",
+        //        Type = "https://example.com/probs/validation-error"
+        //    };
+        //    return await problemDetailsService.TryWriteAsync(
+        //        new ProblemDetailsContext
+        //        {
+        //            HttpContext = httpContext,
+        //            ProblemDetails = problemDetails
+        //        }
+        //    );
+        //}
+
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
-        //if (exception.Message == "Test exception")
-        //{
+        if (exception.Message == "Test exception")
+        {
             return await problemDetailsService.TryWriteAsync(
                 new ProblemDetailsContext
                 {
@@ -38,8 +77,8 @@ public class GlobalExceptionHandler(
                     }
                 }
             );
-        //}
-        //return false; // Якщо не оброблено, повертаємо false,
+        }
+        return false; // Якщо не оброблено, повертаємо false,
                       // щоб дозволити іншим обробникам спробувати обробити виключення
     }
 }
