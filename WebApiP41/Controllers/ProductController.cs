@@ -59,6 +59,8 @@ public class ProductController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetProductById(int id)
     {
+        throw new Exception("Test exception"); // Тестування обробки винятків
+
         if (!CheckUser())
         {
             return Unauthorized();

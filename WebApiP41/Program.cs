@@ -6,8 +6,12 @@ using WebApiP41.Middlewares;
 using WebApiP41.Models;
 using WebApiP41.Services;
 using WebApiP41.Models.Validation;
+using WebApiP41.ErrorHandling;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -53,6 +57,9 @@ builder.Services.AddOpenApi();
 
 
 var app = builder.Build();
+// Важливо додати першим
+app.UseExceptionHandler(); 
+
 
 if (app.Environment.IsDevelopment())
 {
